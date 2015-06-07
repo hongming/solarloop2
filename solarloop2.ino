@@ -11,7 +11,7 @@ float loop_sunset;
 float loop_currenttime;
 float loop_daylength;
 float loop_timelag = 0;
-int loop_leds = 8;
+int loop_leds = 16;
 int led_current;
 int loop_pin_latch = 8;
 int loop_pin_clock = 12;
@@ -44,19 +44,28 @@ void loop() {
   solarloop.time(loopnow.year(),loopnow.month(),loopnow.day(),loopnow.hour(),loopnow.minute(),loopnow.second());
   solarloop.calculations();
   loop_sunrise = solarloop.sunrise_time();
-  Serial.print(loop_sunrise);
-  Serial.print("--");
+   // Serial.print(loop_sunrise);
+   // Serial.print("--");
   loop_sunset = solarloop.sunset_time();
-  Serial.print(loop_sunset);
-  Serial.print("--");
+   // Serial.print(loop_sunset);
+   // Serial.print("--");
+  //  Serial.print(loopnow.minute());
+  //    Serial.print("--");
   //当前时间，以十进制显示
-  loop_currenttime = loopnow.hour() + loopnow.minute() / 60 + loopnow.second() / 3600;
-    Serial.print(loop_currenttime);
-    Serial.print(loopnow.unixtime());
+  loop_currenttime = 1.0*loopnow.hour() + 1.0*loopnow.minute() / 60 + 1.0*loopnow.second() / 3600;
+   //   Serial.print(loop_currenttime);
+   //   Serial.print("--");
+   //   Serial.print(loopnow.unixtime());
   //以二进制反推，计算当前时间对应的led亮灯次序
-  led_current = pow(2,(round(loop_currenttime-loop_sunrise)/((loop_sunset-loop_sunrise)/loop_leds)));
-    Serial.print(led_current);
+  loop_currenttime=16;
+  led_current = pow(2,(round((1.0*(loop_currenttime-loop_sunrise))/(1.0*(loop_sunset-loop_sunrise)/loop_leds))))+0.5;
+   //    Serial.print("--");
+      Serial.println(led_current);
+
   //数据导出
+  digitalWrite(loop_pin_latch, LOW);
   shiftOut(loop_pin_data, loop_pin_clock, MSBFIRST, highByte(led_current));
   shiftOut(loop_pin_data, loop_pin_clock, MSBFIRST, lowByte(led_current));
+  digitalWrite(loop_pin_latch, HIGH);
+  delay(10);
 }
